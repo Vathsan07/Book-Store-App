@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Book;
+import com.example.demo.model.Publisher;
 import com.example.demo.repository.BookRepo;
+import com.example.demo.repository.PublisherRepo;
 
 @Service
 public class BookService {
@@ -14,19 +16,22 @@ public class BookService {
     @Autowired
     private BookRepo bookRepository;
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
-    }
+    @Autowired
+    private PublisherRepo publisherRepository;
 
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id).orElse(null);
-    }
-
-    public Book createBook(Book book) {
+    public Book createBookWithPublisher(String title, String author, Long publisherId) {
+        Publisher publisher = publisherRepository.findById(publisherId).orElseThrow();
+        Book book = new Book(title, author, publisher);
         return bookRepository.save(book);
     }
 
-    public void deleteBook(Long id) {
-        bookRepository.deleteById(id);
+    public Publisher createPublisher(String name) {
+        Publisher publisher = new Publisher(name);
+        return publisherRepository.save(publisher);
+    }
+
+    public List<Book> getBooksByPublisher(Long publisherId) {
+        Publisher publisher = publisherRepository.findById(publisherId).orElseThrow();
+        return publisher.getBooks();
     }
 }
